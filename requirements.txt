@@ -1,0 +1,9 @@
+# COEN 330 Snake AI — runtime dependencies
+# Python 3.11 or 3.12 recommended (best PyTorch wheel support).
+pygame>=2.5
+torch>=2.0
+numpy>=1.24
+matplotlib>=3.7
+
+# Development / testing
+pytest>=8.0
