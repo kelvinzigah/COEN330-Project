@@ -51,3 +51,5 @@ Everyone contributes to the **report** and the **demo**; M4 coordinates it.
 - [ ] Confirm Python 3.11/3.12 env on each member's machine.
 - [ ] M1–M3: run baseline training to ~300 games, record the curve.
 - [ ] M4: set up a results/ folder convention for saved plots.
+
+# Whatever I want
