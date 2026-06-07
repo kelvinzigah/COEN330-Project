@@ -1,3 +1,6 @@
+#The GUI used to play the game with the keyboard. 
+#It shares the same core game rules as the RL environment, but is implemented separately to avoid any risk of AI-specific bugs creeping into the human-playable version.
+
 """Human-playable Snake — control with the arrow keys.
 
 This version exists to *validate the core game rules* independently of any AI:
@@ -12,13 +15,15 @@ Run from the project root:
 Controls: arrow keys to steer · R to restart after a game over · Q or window
 close to quit.
 """
+
+
 from __future__ import annotations
 
-import random
+import random #Used later to randomly places food on the board at the beginning of the game and after the snake eats the food.
 
 import pygame
 
-from .. import config
+from .. import config #Contains constants like BLOCK_SIZE, DEFAULT_WIDTH/HEIGHT, and HUMAN_SPEED.
 from .constants import Color, Direction, Point
 
 # Opposite headings — used to reject 180° reversals (a snake can't turn back

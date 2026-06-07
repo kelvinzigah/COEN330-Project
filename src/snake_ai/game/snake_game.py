@@ -1,3 +1,9 @@
+#This portion only handles the game rules and the GUI for human play. THe agent decides the actions to take based on the state of the game, 
+#The environment (this code) applies those actions and updates the game state accordingly.
+
+#Reinforcement learning loops typically look like this:
+#Action -> Environment (play_step) -> Reward + New State -> Agent (choose next action) -> Environment (play_step) -> ...
+
 """Pygame Snake environment exposed as a reinforcement-learning interface.
 
 The environment is deliberately decoupled from the learning code: it knows
@@ -18,14 +24,18 @@ from .constants import Color, Direction, Point
 # Clockwise ordering of directions. Indexing into this list lets us turn a
 # relative action (straight / right / left) into an absolute heading without
 # any if/else ladders.
-_CLOCKWISE = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
 
+#THe snake will move based on the current direction and the action taken by the agent. 
+#For example, if the snake is currently moving right and the agent takes a "left" action, the snake will turn up. 
+#If the  if the snake is currently moving right and the agent takes a "right" action, the snake will stay straight. 
 
-class SnakeGameRL:
+_CLOCKWISE = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP] 
+
+class SnakeGameRL: #Controlled by the agent, not the keyboard.
     """Snake game driven by external actions, suitable for RL training."""
 
     def __init__(self, width=config.DEFAULT_WIDTH, height=config.DEFAULT_HEIGHT,
-                 render=True, speed=config.GAME_SPEED):
+                 render=True, speed=config.GAME_SPEED): #We can render flase for faster training, and true for visualizing the game.
         if width % config.BLOCK_SIZE or height % config.BLOCK_SIZE:
             raise ValueError(
                 f"width/height must be multiples of BLOCK_SIZE={config.BLOCK_SIZE}"
@@ -38,7 +48,7 @@ class SnakeGameRL:
         self._display = None
         self._clock = None
         self._font = None
-        if self.render:
+        if self.render: #Only runs if we want to render the game, which is not necessary for training the agent.
             pygame.init()
             self._display = pygame.display.set_mode((self.width, self.height))
             pygame.display.set_caption("COEN 330 — Snake AI")
@@ -49,7 +59,7 @@ class SnakeGameRL:
 
     # -- public RL API --------------------------------------------------------
     def reset(self):
-        """Start a fresh episode. State is read back via the public getters."""
+        """Start a fresh episode. State is read back via the public getters.""" #An episode is a single playthrough of the game, from start to game over. When we reset, we start a new episode with a fresh game state.
         self.direction = Direction.RIGHT
         mid = Point(self.width // 2, self.height // 2)
         self.head = mid
@@ -60,10 +70,10 @@ class SnakeGameRL:
         ]
         self.score = 0
         self.food = None
-        self._frame_iteration = 0
+        self._frame_iteration = 0 #How many steps have we taken in the current episode? Used to detect timeouts (the snake taking too long without eating food).
         self._place_food()
 
-    def play_step(self, action):
+    def play_step(self, action): #The AI takes 1 action (one-hot vector of [straight, right, left]) and the environment updates the game state accordingly, then returns the reward for that action, whether the game is over, and the current score.
         """Advance one frame given a relative action one-hot ``[straight, right, left]``.
 
         Returns ``(reward, game_over, score)``.
@@ -73,7 +83,8 @@ class SnakeGameRL:
 
         self._move(action)                 # updates self.direction and self.head
         self.snake.insert(0, self.head)
-
+        #The action inputs use one-hot encoding to represent the relative direction the snake should turn based on its current heading.
+        #Example: [1,0,0] means go straight, [0,1,0] means turn right, and [0,0,1] means turn left. The _move function takes the current direction of the snake and the action input to calculate the new direction and update the snake's head position accordingly.
         reward = config.REWARD_STEP
         game_over = False
         if self._is_collision() or self._timed_out():
@@ -92,7 +103,9 @@ class SnakeGameRL:
             self._update_ui()
             self._clock.tick(self.speed)
 
-        return reward, game_over, self.score
+        #Used in the training loop to update the agent's knowledge of the environment and decide on the next action.
+        #Training loop gets the old state, takes an action from the agent, calls play_step to get the reward and new state, and then updates/trains the agent. 
+        return reward, game_over, self.score 
 
     def is_collision(self, point: Point | None = None) -> bool:
         """Public collision test, used by the agent to sense danger ahead."""
