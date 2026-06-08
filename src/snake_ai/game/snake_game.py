@@ -35,7 +35,7 @@ class SnakeGameRL: #Controlled by the agent, not the keyboard.
     """Snake game driven by external actions, suitable for RL training."""
 
     def __init__(self, width=config.DEFAULT_WIDTH, height=config.DEFAULT_HEIGHT,
-                 render=True, speed=config.GAME_SPEED): #We can render flase for faster training, and true for visualizing the game.
+                 render=True, speed=config.GAME_SPEED): #We can render false for faster training, and true for visualizing the game.
         if width % config.BLOCK_SIZE or height % config.BLOCK_SIZE:
             raise ValueError(
                 f"width/height must be multiples of BLOCK_SIZE={config.BLOCK_SIZE}"
@@ -145,9 +145,9 @@ class SnakeGameRL: #Controlled by the agent, not the keyboard.
         body = self.snake[1:] if point is None else self.snake
         return pt in body
 
-    def _move(self, action):
+    def _move(self, action): #Based on the AI action, converts it into an absolute direction and updates the snake's head position accordingly. The action is a one-hot vector representing the relative turn (straight, right, left) the snake should take based on its current heading.
         """Apply a ``[straight, right, left]`` turn relative to current heading."""
-        idx = _CLOCKWISE.index(self.direction)
+        idx = _CLOCKWISE.index(self.direction) #The current direction.
         if np.array_equal(action, [1, 0, 0]):
             new_dir = _CLOCKWISE[idx]                 # straight: no change
         elif np.array_equal(action, [0, 1, 0]):
@@ -157,7 +157,7 @@ class SnakeGameRL: #Controlled by the agent, not the keyboard.
         else:
             raise ValueError(f"action must be a 3-way one-hot, got {action!r}")
 
-        self.direction = new_dir
+        self.direction = new_dir #Updating the position of the snake's head based on the new direction. The snake moves one block in the new direction each step.
         x, y = self.head.x, self.head.y
         if new_dir == Direction.RIGHT:
             x += config.BLOCK_SIZE
@@ -169,7 +169,7 @@ class SnakeGameRL: #Controlled by the agent, not the keyboard.
             y -= config.BLOCK_SIZE
         self.head = Point(x, y)
 
-    def _update_ui(self):
+    def _update_ui(self): #Draw the current game state to the screen. Called after each step when rendering is enabled.
         self._display.fill(Color.BLACK)
         for segment in self.snake:
             pygame.draw.rect(self._display, Color.BLUE1,
